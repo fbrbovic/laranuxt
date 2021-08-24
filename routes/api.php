@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ProfileSkillController;
 
 /*
 |--------------------------------------------------------------------------
@@ -17,5 +19,8 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [Controller::class, 'routes'])
     ->name('route information')
     ->withoutMiddleware('api');
-Route::get('/example', [Controller::class, 'example'])->name('example route');
+Route::apiResource('profile', ProfileController::class);
+Route::apiResource('profile.skill', ProfileSkillController::class)->scoped([
+   'skill' => 'slug'
+]);
 Route::get('/error', [Controller::class, 'error'])->name('error route');

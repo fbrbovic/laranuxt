@@ -1,68 +1,49 @@
 <template>
-  <div class="container p-2 lg:p-8 flex flex-col">
-    <div class="m-8 flex items-center justify-center">
-      <Logo />
+  <div v-if="dataProfile" class="container p-2 lg:p-8 flex flex-col">
+    <div class="flex items-center p-6 space-x-6 bg-white rounded-xl shadow-sm">
+      <div class="text-2xl flex flex-row">{{ dataProfile.name }}</div>
     </div>
-    <ul v-if="users.length === 0" class="grid grid-cols-1 gap-6 bg-gray-100 rounded p-8 w-full sm:grid-cols-2 lg:grid-cols-3">
-      <contact-card-skeleton v-for="i in 9" :key="`skel-${i}`" />
-    </ul>
-    <ul v-if="users.length &gt; 0" class="grid grid-cols-1 gap-6 bg-gray-100 rounded p-8 w-full sm:grid-cols-2 lg:grid-cols-3">
-      <contact-card v-for="(user, index) in users" :key="index" :user="user" />
-    </ul>
-    <div class="text-center mt-4">
-      <span>provided by endpoint</span><span>&nbsp;</span>
-      <a class="text-blue-400" :href="`${$config.apiUrl}/example?count=9`">/example</a>
-      <span>&nbsp;</span>
-      <span class="text-gray-400 text-sm">(2 second delay)</span>
-    </div>
-    <div class="text-center mt-4">
-      <span class="mr-4">nuxt-tailvue kitchen sink:</span>
-      <button-group>
-        <push-button group="left" to="/modal">
-          Modals
-        </push-button>
-        <push-button group="middle" to="/toast">
-          toasts
-        </push-button>
-        <push-button group="middle" to="/button">
-          buttons
-        </push-button>
-        <push-button group="right" to="/icon">
-          icons
-        </push-button>
-      </button-group>
-    </div>
+    <description-view v-model="dataProfile" class="py-6" />
+    <skills-view :profile-id="1" class="py-6" />
+  </div>
+  <div v-else>
+    Could not retrieve the profile
   </div>
 </template>
 
 <script lang="ts">
+import { Profile } from '@/types/profile'
+import { Maybe } from '@/types/common'
+import SkillsView from '@/components/view/SkillsView.vue'
+import DescriptionView from '@/components/view/DescriptionView.vue'
 import Vue from 'vue'
-import { Users } from '@/types/api'
-export default Vue.extend({
-  data () {
-    const users:Users = []
-    const count:number = 9
 
+export default Vue.extend({
+  components: {
+    SkillsView,
+    DescriptionView,
+  },
+  data () {
     return {
-      users,
-      count,
+      dataProfile: null as Maybe<Profile>,
     }
   },
-  mounted () {
-    this.get(this.count)
+  async mounted () {
+    await this.processProfileData()
   },
   methods: {
-    async get (count: number): Promise<void> {
-      await this.$sleep(2000)
-      this.users = (
-        await this.$axios.get('example', { params: { count } })
-      ).data.data as Users
-    },
-    total (count: number): void {
-      this.users = []
-      this.count = count
-      this.get(this.count)
+    async processProfileData (): Promise<void> {
+      try {
+        this.dataProfile =
+            (await this.$axios.get('profile/1')).data as Maybe<Profile>
+      } catch (e) {
+        // handle error here with a popup or something
+      }
     },
   },
 })
 </script>
+
+<style scoped>
+
+</style>
