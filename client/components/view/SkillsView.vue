@@ -86,7 +86,7 @@ export default Vue.extend({
     async retrieveSkills () {
       try {
         this.dataList =
-          (await this.$axios.get(`profile/${this.profileId}/skill`)).data as Maybe<ProfileSkill>
+          (await this.$axios.get(`profile/${this.profileId}/skill`)).data as Maybe<ProfileSkill[]>
       } catch (e) {
         // handle error here with a popup or something
         console.log('err', e)
